@@ -1,7 +1,7 @@
 // Pacote do programa.
 package main
 
-// Bbiliotecas
+// Bibliotecas
 import (
 	"database/sql"
 	"fmt"

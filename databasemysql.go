@@ -100,60 +100,134 @@ func main() {
 	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando tabela marcas.")
 	exec(db, `CREATE TABLE IF NOT EXISTS marcas(
-		marcas_id INT AUTO_INCREMENT PRIMARY KEY,
-		marca VARCHAR(40),
-		paisorigem VARCHAR(40)
+		marca_id INT AUTO_INCREMENT PRIMARY KEY,
+		marca_nome VARCHAR(40)
 	)`)
 	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Sucesso.")
 
 	// Declaração de variáveis
 	var categorias []string
+	var marcas []string
+	marca := ""
 	categoria := ""
 	resposta := ""
 	codigo := 0
 	totalregistros := 0
 
-	// Cria uma nova catégoria (Input do usuario)
-	for {
-		fmt.Println("Informe um nome para a categoria: ")
-		fmt.Scanln(&categoria)
-		categorias = append(categorias, categoria)
-
-		fmt.Println("Deseja cadastrar a categoria? s/n")
+	// Boas-vindas
+	fmt.Println("\n\n------ Seja bem-vindo ! ------")
+	// Menu
+	for resposta != "0" {
+		fmt.Println("\n\n	------ MENU ------")
+		time.Sleep(250 * time.Millisecond)
+		fmt.Println("\nPara CRIAR uma nova Categoria digite 1")
+		fmt.Println("Para CRIAR uma nova Marca digite 2")
+		fmt.Println("Para ATUALIZAR uma Categoria digite 3")
+		fmt.Println("Para ATUALIZAR uma Marca digite 4")
+		fmt.Println("Para DELETAR a tabela Categorias digite 5")
+		fmt.Println("Para DELETAR a tabela Marcas digite 6")
+		fmt.Println("Para SELECIONAR a tabela Categoria digite 7")
+		fmt.Println("Para SELECIONAR a tabela Marcas digite 8")
+		fmt.Println("Para SAIR digite 0")
 		fmt.Scanln(&resposta)
 
-		if resposta != "s" {
+		switch resposta {
+
+		case "1":
+			// Cria uma nova catégoria (Input do usuario)
+			fmt.Println("\nDeseja criar uma nova categoria? s/n")
+			fmt.Scanln(&resposta)
+
+			if resposta == "s" {
+				for {
+					fmt.Println("Informe um nome para a categoria: ")
+					fmt.Scanln(&categoria)
+					categorias = append(categorias, categoria)
+
+					fmt.Println("Deseja cadastrar a categoria? s/n")
+					fmt.Scanln(&resposta)
+
+					if resposta != "s" {
+						break
+					}
+
+					// ???
+					rows, _ := db.Query("select max(categoria_id) as ultimo from categorias")
+					defer rows.Close()
+					for rows.Next() {
+						rows.Scan(&codigo)
+						codigo = codigo + 1
+					}
+
+					// ???
+					totalregistros = len(categorias)
+
+					// ???
+					tx, _ := db.Begin()
+					stmt, _ := tx.Prepare("insert into categorias(categoria_id, categoria_nome) values(?,?)")
+
+					// ??? Faz o incremento no categoria_id ???
+					for i := 0; i < totalregistros; i++ {
+						stmt.Exec(codigo, categorias[i])
+						codigo = codigo + 1
+					}
+
+					// ???
+					if err != nil {
+						tx.Rollback()
+						log.Fatal(err)
+					}
+					tx.Commit()
+				}
+			}
+
+		case "2":
+			// Cria uma nova marca (Input do usuario)
+			for {
+				fmt.Println("Informe um nome para a marca: ")
+				fmt.Scanln(&marca)
+				categorias = append(marcas, marca)
+
+				fmt.Println("Deseja cadastrar a marca? s/n")
+				fmt.Scanln(&resposta)
+
+				if resposta != "s" {
+					break
+				}
+
+				// ???
+				rows, _ := db.Query("select max(marca_id) as ultimo from marcas")
+				defer rows.Close()
+				for rows.Next() {
+					rows.Scan(&codigo)
+					codigo = codigo + 1
+				}
+
+				// ???
+				totalregistros = len(marcas)
+
+				// ???
+				tx, _ := db.Begin()
+				stmt, _ := tx.Prepare("insert into marcas(marca_id, marca_nome) values(?,?)")
+
+				// ??? Faz o incremento no categoria_id ???
+				for i := 0; i < totalregistros; i++ {
+					stmt.Exec(codigo, marcas[i])
+					codigo = codigo + 1
+				}
+
+				// ???
+				if err != nil {
+					tx.Rollback()
+					log.Fatal(err)
+				}
+				tx.Commit()
+			}
+
+		case "0":
 			break
+
 		}
-
-		// ???
-		rows, _ := db.Query("select max(categoria_id) as ultimo from categorias")
-		defer rows.Close()
-		for rows.Next() {
-			rows.Scan(&codigo)
-			codigo = codigo + 1
-		}
-
-		// ???
-		totalregistros = len(categorias)
-
-		// ???
-		tx, _ := db.Begin()
-		stmt, _ := tx.Prepare("insert into categorias(categoria_id, categoria_nome) values(?,?)")
-
-		// ??? Faz o incremento no categoria_id ???
-		for i := 0; i < totalregistros; i++ {
-			stmt.Exec(codigo, categorias[i])
-			codigo = codigo + 1
-		}
-
-		// ???
-		if err != nil {
-			tx.Rollback()
-			log.Fatal(err)
-		}
-		tx.Commit()
 	}
-
 }

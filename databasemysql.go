@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -30,18 +31,22 @@ func main() {
 	defer db.Close()
 
 	// Cria Database webloja se já não existir
-	fmt.Println("Criando banco de dados webloja.")
+	fmt.Println("\n\nCriando banco de dados webloja.")
 	exec(db, "CREATE DATABASE IF NOT EXISTS webloja")
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Sucesso.")
 
 	// Escolhe o Database webloja para ser usado
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Selecionando banco de dados webloja.")
 	exec(db, "USE webloja")
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Sucesso.")
 
 	// Criando tabelas
 
 	// Cria tabela Lojas
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando Tabela Lojas.")
 	exec(db, `CREATE TABLE IF NOT EXISTS lojas(
 		loja_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,9 +54,11 @@ func main() {
 		cidadeloja VARCHAR(40),
 		estadoloja VARCHAR(40)
 	)`)
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Sucesso.")
 
 	// Cria tabela Produtos
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando Tabela Produtos.")
 	exec(db, `CREATE TABLE IF NOT EXISTS produtos(
 		produto_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,9 +68,11 @@ func main() {
 		preco DECIMAL(20,2),
 		custo DECIMAL(20,2)
 	)`)
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Sucesso.")
 
 	// Cria tabela Estoque
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando Tabela Estoque.")
 	exec(db, `CREATE TABLE IF NOT EXISTS estoques(
 		loja_id INT NOT NULL,
@@ -74,23 +83,29 @@ func main() {
 		FOREIGN KEY (produto_id) REFERENCES produtos(produto_id)
 	)
 `)
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Sucesso.")
 
 	// Cria tabela Categorias.
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando tabela categorias.")
 	exec(db, `CREATE TABLE IF NOT EXISTS categoria(
 		categoria_id INT AUTO_INCREMENT PRIMARY KEY,
-		categoria VARCHAR(40)
+		categoria_nome VARCHAR(40)
 	)`)
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Sucesso.")
 
 	// Cria tabela Marcas.
+	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando tabela marcas.")
 	exec(db, `CREATE TABLE IF NOT EXISTS marcas(
 		marcas_id INT AUTO_INCREMENT PRIMARY KEY,
 		marca VARCHAR(40),
 		paisorigem VARCHAR(40)
 	)`)
+	time.Sleep(500 * time.Millisecond)
+	fmt.Println("Sucesso.")
 
 	// Declaração de variáveis
 	var categorias []string
@@ -105,7 +120,7 @@ func main() {
 		fmt.Scanln(&categoria)
 		categorias = append(categorias, categoria)
 
-		fmt.Println("cadastrando a categoria ", categoria)
+		fmt.Println("cadastrando a categoria:", categoria)
 
 		fmt.Println("Deseja cadastrar uma nova categoria? s/n")
 		fmt.Scanln(&resposta)
@@ -127,7 +142,7 @@ func main() {
 
 		// ???
 		tx, _ := db.Begin()
-		stmt, _ := tx.Prepare("insert into categorias(categoria_id, categoria) values(?,?)")
+		stmt, _ := tx.Prepare("insert into categorias(categoria_id, categoria_nome) values(?,?)")
 
 		// ??? Faz o incremento no categoria_id ???
 		for i := 0; i < totalregistros; i++ {

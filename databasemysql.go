@@ -10,6 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+//
 func exec(db *sql.DB, sql string) sql.Result {
 	result, err := db.Exec(sql)
 	if err != nil {
@@ -31,6 +32,7 @@ func main() {
 	// Cria Database webloja se já não existir
 	fmt.Println("Criando banco de dados webloja.")
 	exec(db, "CREATE DATABASE IF NOT EXISTS webloja")
+	fmt.Println("Sucesso.")
 
 	// Escolhe o Database webloja para ser usado
 	fmt.Println("Selecionando banco de dados webloja.")
@@ -89,7 +91,8 @@ func main() {
 	var categorias []string
 	categoria := ""
 	resposta := ""
-	codigo := 0
+	categoria_id := 0
+	//codigo := 0
 	totalregistros := 0
 
 	// Cria catégoria (Input do usuario)
@@ -98,7 +101,7 @@ func main() {
 		fmt.Scanln(&categoria)
 		categorias = append(categorias, categoria)
 
-		fmt.Println("cadastrando a categoria %s", categoria)
+		fmt.Println("cadastrando a categoria ", categoria)
 
 		fmt.Println("Deseja cadastrar uma nova categoria? s/n")
 		fmt.Scanln(&resposta)
@@ -109,8 +112,8 @@ func main() {
 		rows, _ := db.Query("select max(categoria_id) as ultimo from categorias")
 		defer rows.Close()
 		for rows.Next() {
-			rows.Scan(&codigo)
-			codigo = codigo + 1
+			rows.Scan(&categoria_id)
+			categoria_id = categoria_id + 1
 		}
 
 		totalregistros = len(categorias)
@@ -119,8 +122,8 @@ func main() {
 		stmt, _ := tx.Prepare("insert into categorias(categoria_id, categoria) values(?,?)")
 
 		for i := 0; i < totalregistros; i++ {
-			stmt.Exec(codigo, categorias[i])
-			codigo = codigo + 1
+			stmt.Exec(categoria_id, categorias[i])
+			categoria_id = categoria_id + 1
 		}
 
 		if err != nil {

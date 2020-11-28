@@ -128,7 +128,7 @@ func main() {
 		tx, _ := db.Begin()
 		stmt, _ := tx.Prepare("insert into categorias(categoria_id, categoria) values(?,?)")
 
-		// Faz o incremento no categoria_id ???
+		// ??? Faz o incremento no categoria_id ???
 		for i := 0; i < totalregistros; i++ {
 			stmt.Exec(codigo, categorias[i])
 			codigo = codigo + 1

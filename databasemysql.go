@@ -11,6 +11,16 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+type categoriaa struct {
+	id   int
+	nome string
+}
+
+type marcaa struct {
+	id   int
+	nome string
+}
+
 // ???
 func exec(db *sql.DB, sql string) sql.Result {
 	result, err := db.Exec(sql)
@@ -33,20 +43,15 @@ func main() {
 	// Cria Database webloja se já não existir
 	fmt.Println("\n\nCriando banco de dados webloja.")
 	exec(db, "CREATE DATABASE IF NOT EXISTS webloja")
-	time.Sleep(500 * time.Millisecond)
-	fmt.Println("Sucesso.")
 
 	// Escolhe o Database webloja para ser usado
-	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Selecionando banco de dados webloja.")
 	exec(db, "USE webloja")
-	time.Sleep(500 * time.Millisecond)
-	fmt.Println("Sucesso.")
 
 	// Criando tabelas
 
 	// Cria tabela Lojas
-	time.Sleep(500 * time.Millisecond)
+
 	fmt.Println("Criando Tabela Lojas.")
 	exec(db, `CREATE TABLE IF NOT EXISTS lojas(
 		loja_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -54,11 +59,9 @@ func main() {
 		cidadeloja VARCHAR(40),
 		estadoloja VARCHAR(40)
 	)`)
-	time.Sleep(500 * time.Millisecond)
-	fmt.Println("Sucesso.")
 
 	// Cria tabela Produtos
-	time.Sleep(500 * time.Millisecond)
+
 	fmt.Println("Criando Tabela Produtos.")
 	exec(db, `CREATE TABLE IF NOT EXISTS produtos(
 		produto_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -68,11 +71,8 @@ func main() {
 		preco DECIMAL(20,2),
 		custo DECIMAL(20,2)
 	)`)
-	time.Sleep(500 * time.Millisecond)
-	fmt.Println("Sucesso.")
 
 	// Cria tabela Estoque
-	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando Tabela Estoque.")
 	exec(db, `CREATE TABLE IF NOT EXISTS estoques(
 		loja_id INT NOT NULL,
@@ -83,28 +83,20 @@ func main() {
 		FOREIGN KEY (produto_id) REFERENCES produtos(produto_id)
 	)
 `)
-	time.Sleep(500 * time.Millisecond)
-	fmt.Println("Sucesso.")
 
 	// Cria tabela Categorias.
-	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando tabela categorias.")
 	exec(db, `CREATE TABLE IF NOT EXISTS categorias(
 		categoria_id INT AUTO_INCREMENT PRIMARY KEY,
 		categoria_nome VARCHAR(40)
 	)`)
-	time.Sleep(500 * time.Millisecond)
-	fmt.Println("Sucesso.")
 
 	// Cria tabela Marcas.
-	time.Sleep(500 * time.Millisecond)
 	fmt.Println("Criando tabela marcas.")
 	exec(db, `CREATE TABLE IF NOT EXISTS marcas(
 		marca_id INT AUTO_INCREMENT PRIMARY KEY,
 		marca_nome VARCHAR(40)
 	)`)
-	time.Sleep(500 * time.Millisecond)
-	fmt.Println("Sucesso.")
 
 	// Declaração de variáveis
 	var categorias []string
@@ -121,14 +113,15 @@ func main() {
 	for resposta != "0" {
 		fmt.Println("\n\n	------ MENU ------")
 		time.Sleep(250 * time.Millisecond)
-		fmt.Println("\nPara CRIAR uma nova Categoria digite 1")
-		fmt.Println("Para CRIAR uma nova Marca digite 2")
-		fmt.Println("Para ATUALIZAR uma Categoria digite 3")
-		fmt.Println("Para ATUALIZAR uma Marca digite 4")
-		fmt.Println("Para DELETAR a tabela Categorias digite 5")
-		fmt.Println("Para DELETAR a tabela Marcas digite 6")
-		fmt.Println("Para SELECIONAR a tabela Categoria digite 7")
-		fmt.Println("Para SELECIONAR a tabela Marcas digite 8")
+		fmt.Println("\nPara criar uma nova Categoria digite 1")
+		fmt.Println("Para cirar uma nova Marca digite 2")
+		fmt.Println("Para mostar o conteudo da tabela Categoria digite 3")
+		fmt.Println("Para mostrar o conteudo da tabela Marcas digite 4")
+		fmt.Println("Para atualizar uma Categoria digite 5")
+		fmt.Println("Para atualizar uma Marca digite 6")
+		fmt.Println("Para DELETAR a tabela Categorias digite 7")
+		fmt.Println("Para DELETAR a tabela Marcas digite 8")
+		fmt.Println("Para DELETAR as tabelas Marcas e Categorias digite 9")
 		fmt.Println("Para SAIR digite 0")
 		fmt.Scanln(&resposta)
 
@@ -184,50 +177,93 @@ func main() {
 
 		case "2":
 			// Cria uma nova marca (Input do usuario)
-			for {
-				fmt.Println("Informe um nome para a marca: ")
-				fmt.Scanln(&marca)
-				categorias = append(marcas, marca)
 
-				fmt.Println("Deseja cadastrar a marca? s/n")
-				fmt.Scanln(&resposta)
+			fmt.Println("Gostaria de adicionar uma nova marca? s/n")
+			fmt.Scanln(&resposta)
+			if resposta == "s" {
+				for {
+					fmt.Println("Informe um nome para a marca: ")
+					fmt.Scanln(&marca)
+					categorias = append(marcas, marca)
 
-				if resposta != "s" {
-					break
+					fmt.Println("Deseja cadastrar a marca? s/n")
+					fmt.Scanln(&resposta)
+
+					if resposta != "s" {
+						break
+					}
+
+					// ???
+					rows, _ := db.Query("select max(marca_id) as ultimo from marcas")
+					defer rows.Close()
+					for rows.Next() {
+						rows.Scan(&codigo)
+						codigo = codigo + 1
+					}
+
+					// ???
+					totalregistros = len(marcas)
+
+					// ???
+					tx, _ := db.Begin()
+					stmt, _ := tx.Prepare("insert into marcas(marca_id, marca_nome) values(?,?)")
+
+					// ??? Faz o incremento no categoria_id ???
+					for i := 0; i < totalregistros; i++ {
+						stmt.Exec(codigo, marcas[i])
+						codigo = codigo + 1
+					}
+
+					// ???
+					if err != nil {
+						tx.Rollback()
+						log.Fatal(err)
+					}
+					tx.Commit()
 				}
-
-				// ???
-				rows, _ := db.Query("select max(marca_id) as ultimo from marcas")
-				defer rows.Close()
-				for rows.Next() {
-					rows.Scan(&codigo)
-					codigo = codigo + 1
-				}
-
-				// ???
-				totalregistros = len(marcas)
-
-				// ???
-				tx, _ := db.Begin()
-				stmt, _ := tx.Prepare("insert into marcas(marca_id, marca_nome) values(?,?)")
-
-				// ??? Faz o incremento no categoria_id ???
-				for i := 0; i < totalregistros; i++ {
-					stmt.Exec(codigo, marcas[i])
-					codigo = codigo + 1
-				}
-
-				// ???
-				if err != nil {
-					tx.Rollback()
-					log.Fatal(err)
-				}
-				tx.Commit()
 			}
+		case "3":
+
+			rows, _ := db.Query("select categoria_id, categoria_nome from categorias")
+			defer rows.Close()
+			fmt.Println("\nAs seguintes categorias estao registradas:")
+			for rows.Next() {
+				var c categoriaa
+				rows.Scan(&c.id, &c.nome)
+				fmt.Println(c)
+			}
+
+		case "4":
+
+			rows, _ := db.Query("select marca_id, marca_nome from marcas")
+			defer rows.Close()
+			fmt.Println("\nAs seguintes marcas estao registradas:")
+			for rows.Next() {
+				var c marcaa
+				rows.Scan(&c.id, &c.nome)
+				fmt.Println(c)
+			}
+
+		case "7":
+			exec(db, `DROP TABLE categorias`)
+			resposta = "0"
+
+		case "8":
+			exec(db, `DROP TABLE marcas`)
+			resposta = "0"
+
+		case "9":
+			exec(db, `DROP TABLE categorias`)
+			exec(db, `DROP TABLE marcas`)
+			resposta = "0"
 
 		case "0":
 			break
 
+		default:
+			fmt.Println("Opção inválida.")
+			break
 		}
+
 	}
 }

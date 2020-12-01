@@ -120,8 +120,8 @@ func main() {
 		fmt.Println("Para mostrar o conteudo da tabela Marcas digite 4")
 		fmt.Println("Para atualizar uma Categoria digite 5")
 		fmt.Println("Para atualizar uma Marca digite 6")
-		fmt.Println("Para DELETAR a tabela Categorias digite 7")
-		fmt.Println("Para DELETAR a tabela Marcas digite 8")
+		fmt.Println("Para DELETAR um item da tabela Categorias digite 7")
+		fmt.Println("Para DELETAR um item da tabela Marcas digite 8")
 		fmt.Println("Para DELETAR as tabelas Marcas e Categorias digite 9")
 		fmt.Println("Para SAIR digite 0")
 		fmt.Scanln(&resposta)
@@ -220,7 +220,7 @@ func main() {
 
 		case "3":
 
-			rows, _ := db.Query("select categoria_id, categoria_nome from categorias")
+			rows, _ := db.Query("SELECT categoria_id, categoria_nome FROM categorias")
 			defer rows.Close()
 			fmt.Println("\nAs seguintes categorias estao registradas:")
 			for rows.Next() {
@@ -231,7 +231,7 @@ func main() {
 
 		case "4":
 
-			rows, _ := db.Query("select marca_id, marca_nome from marcas")
+			rows, _ := db.Query("SELECT marca_id, marca_nome FROM marcas")
 			defer rows.Close()
 			fmt.Println("\nAs seguintes marcas estao registradas:")
 			for rows.Next() {
@@ -248,7 +248,7 @@ func main() {
 			fmt.Scanln(&nome)
 
 			// update
-			stmt, _ := db.Prepare("Update categorias set categoria_nome = ? where categoria_id = ?")
+			stmt, _ := db.Prepare("UPDATE categorias SET categoria_nome = ? WHERE categoria_id = ?")
 			stmt.Exec(nome, codigo)
 
 		case "6":
@@ -259,15 +259,23 @@ func main() {
 			fmt.Scanln(&nome)
 
 			// Update
-			stmt, _ := db.Prepare("Update marcas set marca_nome = ? where marca_id = ?")
+			stmt, _ := db.Prepare("UPDATE marcas SET marca_nome = ? WHERE marca_id = ?")
 			stmt.Exec(nome, codigo)
 		case "7":
-			exec(db, `DROP TABLE categorias`)
-			resposta = "0"
+
+			fmt.Println("Digite o código do item que deseja apagar da tabela Categorias.")
+			fmt.Scanln(&codigo)
+
+			stmt, _ := db.Prepare("DELETE FROM categorias WHERE categoria_id = ?")
+			stmt.Exec(codigo)
 
 		case "8":
-			exec(db, `DROP TABLE marcas`)
-			resposta = "0"
+
+			fmt.Println("Digite o código do item que deseja apagar da tabela Marcas.")
+			fmt.Scanln(&codigo)
+
+			stmt, _ := db.Prepare("DELETE FROM marcas WHERE marca_id = ?")
+			stmt.Exec(codigo)
 
 		case "9":
 			exec(db, `DROP TABLE categorias`)

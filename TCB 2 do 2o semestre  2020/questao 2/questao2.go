@@ -41,6 +41,8 @@ func main() {
 	totalregistros := 0
 	resposta := ""
 
+	// ====	{Create}	====
+
 	// Criando Database
 	exec(db, "CREATE DATABASE IF NOT EXISTS dbprodutos")
 	fmt.Println("DB criado")
